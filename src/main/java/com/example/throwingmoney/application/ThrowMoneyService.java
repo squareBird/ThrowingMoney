@@ -35,10 +35,7 @@ public class ThrowMoneyService {
     // 1. 자신이 뿌리기한 건은 자신이 받을 수 없음
     // 2. 한번만 받을 수 있음
     // 3. 동일한 대화방에 속한 사용자만 받을 수 있음
-    public ReceiveMoneyResponseDto receiveMoney(ReceiveMoneyRequestDto receiveMoneyRequestDto, Long userId, String roomId) {
-
-        // Token
-        String token = receiveMoneyRequestDto.getToken();
+    public ReceiveMoneyResponseDto receiveMoney(String token, Long userId, String roomId) {
 
         // 뿌리기 정보와 해당 뿌리기를 얼마나 받아갔는지 조회
         List<ThrowMoney> throwMoneyList = throwMoneyRepository.findThrowMoneyByTokenAndRoomId(token, roomId);
@@ -76,10 +73,8 @@ public class ThrowMoneyService {
         return receiveMoneyResponseDto;
     }
 
-    public LookupMoneyResponseDto lookupMoney(LookupMoneyRequestDto lookupMoneyRequestDto, Long userId, String roomId) {
-        
-        String token = lookupMoneyRequestDto.getToken();
-        
+    public LookupMoneyResponseDto lookupMoney(String token, Long userId, String roomId) {
+
         // 뿌리기 정보 조회
         List<ThrowMoney> throwMoneyList = throwMoneyRepository.findThrowMoneyByTokenAndUserIdAndRoomId(token, userId, roomId);
         if(throwMoneyList.size()==0) {

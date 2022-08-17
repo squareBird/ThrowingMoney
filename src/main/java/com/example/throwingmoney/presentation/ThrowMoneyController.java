@@ -36,24 +36,25 @@ public class ThrowMoneyController {
 
     }
 
-    // 이거 POST 말고 GET으로 변경
-    @RequestMapping(value = "/receive", method=RequestMethod.POST)
-    ResponseEntity receiveMoney(@RequestBody ReceiveMoneyRequestDto receiveMoneyRequestDto,
+    @RequestMapping(value = "/receive/{token}", method=RequestMethod.GET)
+    ResponseEntity receiveMoney(@PathVariable String token,
                               @RequestHeader(value = "X-USER-ID") Long userId,
                               @RequestHeader(value = "X-ROOM-ID") String roomId) {
 
-        ReceiveMoneyResponseDto receiveMoneyResponseDto = throwMoneyService.receiveMoney(receiveMoneyRequestDto, userId, roomId);
+        ReceiveMoneyResponseDto receiveMoneyResponseDto = throwMoneyService.receiveMoney(token, userId, roomId);
 
 
         return new ResponseEntity(receiveMoneyResponseDto, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/lookup", method=RequestMethod.POST)
-    ResponseEntity lookupMoney(@RequestBody LookupMoneyRequestDto lookupMoneyRequestDto,
+    @RequestMapping(value = "/lookup/{token}", method=RequestMethod.GET)
+    ResponseEntity lookupMoney(@PathVariable String token,
                              @RequestHeader(value = "X-USER-ID") Long userId,
                              @RequestHeader(value = "X-ROOM-ID") String roomId) {
 
-        LookupMoneyResponseDto lookupMoneyResponseDto = throwMoneyService.lookupMoney(lookupMoneyRequestDto, userId, roomId);
+        System.out.println(token);
+
+        LookupMoneyResponseDto lookupMoneyResponseDto = throwMoneyService.lookupMoney(token, userId, roomId);
 
         return new ResponseEntity(lookupMoneyResponseDto, HttpStatus.OK);
     }
