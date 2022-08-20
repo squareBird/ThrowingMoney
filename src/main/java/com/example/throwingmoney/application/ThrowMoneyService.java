@@ -56,10 +56,10 @@ public class ThrowMoneyService {
 
     public LookupMoneyResponseDto lookupMoney(String token, Long userId, String roomId) {
 
-        // 뿌리기 정보 조회
+        // 뿌리기 정보 조 회
         ThrowMoney throwMoney = throwMoneyRepository.getThrowMoneyByTokenAndUserIdAndRoomId(token, userId, roomId);
         if(throwMoney == null) {
-            throw new CannotFindThrowMoneyException("해당 뿌리기를 찾을 수 없습니다.");
+            throw new CannotFindThrowMoneyException("해당 뿌리기 를 찾을 수 없습니다.");
         }
 
         List<ReceiveInfo> receiveInfoList = throwMoneyRepository.findReceiveInfoByToken(token);
