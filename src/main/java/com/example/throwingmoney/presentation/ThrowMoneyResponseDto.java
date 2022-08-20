@@ -1,14 +1,17 @@
 package com.example.throwingmoney.presentation;
 
-import lombok.Getter;
+import com.example.throwingmoney.domain.ThrowMoney;
+import lombok.Builder;
 
-@Getter
+@Builder
 public class ThrowMoneyResponseDto {
 
     private String token;
 
-    public ThrowMoneyResponseDto(String token) {
-        this.token = token;
+    public static ThrowMoneyResponseDto of(ThrowMoney throwMoney) {
+        return ThrowMoneyResponseDto.builder()
+                .token(throwMoney.getToken())
+                .build();
     }
 
 }

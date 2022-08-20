@@ -8,10 +8,10 @@ public interface ThrowMoneyRepository {
 
     void saveReceiveInfo(ReceiveInfo receiveInfo);
 
-    List<ThrowMoney> findThrowMoneyByTokenAndRoomId(String token, String roomId);
+    ThrowMoney getThrowMoneyByTokenAndRoomId(String token, String roomId);
 
     List<ReceiveInfo> findReceiveInfoByToken(String token);
 
-    List<ThrowMoney> findThrowMoneyByTokenAndUserIdAndRoomId(String token, Long userId,String roomId);
+    ThrowMoney getThrowMoneyByTokenAndUserIdAndRoomId(String token, Long userId,String roomId);
 
 }

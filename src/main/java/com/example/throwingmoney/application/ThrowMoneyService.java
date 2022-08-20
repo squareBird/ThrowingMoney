@@ -10,11 +10,14 @@ import java.util.List;
 @Service
 public class ThrowMoneyService {
 
-    ThrowMoneyRepository throwMoneyRepository;
+    private final ThrowMoneyRepository throwMoneyRepository;
+
+    private final DomainService domainService;
 
     @Autowired
-    ThrowMoneyService(ThrowMoneyRepository throwMoneyRepository) {
+    ThrowMoneyService(ThrowMoneyRepository throwMoneyRepository, DomainService domainService) {
         this.throwMoneyRepository = throwMoneyRepository;
+        this.domainService = domainService;
     }
 
     public ThrowMoneyResponseDto generateThrowMoney(ThrowMoneyRequestDto throwMoneyRequestDto, Long userId, String roomId) {
@@ -24,8 +27,7 @@ public class ThrowMoneyService {
         throwMoneyRepository.saveThrowMoney(throwMoney);
 
         // ResponseDTO 생성
-        // 이거 Entity가 만들어주는게 맞는지?
-        ThrowMoneyResponseDto throwMoneyResponseDto = throwMoney.generateThrowMoneyResponseDto();
+        ThrowMoneyResponseDto throwMoneyResponseDto = ThrowMoneyResponseDto.of(throwMoney);
 
         return throwMoneyResponseDto;
 
@@ -37,38 +39,17 @@ public class ThrowMoneyService {
     // 3. 동일한 대화방에 속한 사용자만 받을 수 있음
     public ReceiveMoneyResponseDto receiveMoney(String token, Long userId, String roomId) {
 
-        // 뿌리기 정보와 해당 뿌리기를 얼마나 받아갔는지 조회
-        List<ThrowMoney> throwMoneyList = throwMoneyRepository.findThrowMoneyByTokenAndRoomId(token, roomId);
-        if(throwMoneyList.size()==0) { // 해당 token과 roomId로 뿌리기를 찾을 수 없음
+        ThrowMoney throwMoney = throwMoneyRepository.getThrowMoneyByTokenAndRoomId(token, roomId);
+
+        // 1. 정보 있는지 없는지 확인
+        // validate를 static으로 만들어서 이 mull 체크를 그 안에 넣어도 되나?
+        if(throwMoney == null) {
             throw new CannotFindThrowMoneyException("해당 뿌리기를 찾을 수 없습니다.");
         }
-        List<ReceiveInfo> receiveInfoList = throwMoneyRepository.findReceiveInfoByToken(token);
+        throwMoney.validate(userId);
 
-        ThrowMoney throwMoney = throwMoneyList.get(0);
-
-        // 자신이 뿌린건지 검증
-        // 나중에 Entity 쪽으로 넣을까...
-        if(throwMoney.getUserId()==userId) {
-            throw new SelfReceiveException("자신이 뿌린 것은 받을 수 없습니다.");
-        }
-
-        // userId로 조회
-        long count = receiveInfoList.stream().map(l -> l.getUserId()).filter(l -> userId.equals(l)).count();
-        if(count!=0) {
-            throw new AlreadyReceiveException("이미 받은 뿌리기입니다.");
-        }
-
-        // 토큰 유효성 검증
-        if(!throwMoney.isValidToken())
-            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
-
-        // ReceiveInfo 정보 생성
-        ReceiveInfo receiveInfo = throwMoney.generateReceiveInfo(receiveInfoList, token, userId);
-        throwMoneyRepository.saveReceiveInfo(receiveInfo);
-
-        // ResponseDto 생성
-        // 이거 Entity가 만들어주는게 맞는지?
-        ReceiveMoneyResponseDto receiveMoneyResponseDto = receiveInfo.generateReceiveMoneyResponseDto();
+        // 받기 정보 생성 및 결과 생성
+        ReceiveMoneyResponseDto receiveMoneyResponseDto= domainService.receive(throwMoney, token, userId, roomId);
 
         return receiveMoneyResponseDto;
     }
@@ -76,12 +57,10 @@ public class ThrowMoneyService {
     public LookupMoneyResponseDto lookupMoney(String token, Long userId, String roomId) {
 
         // 뿌리기 정보 조회
-        List<ThrowMoney> throwMoneyList = throwMoneyRepository.findThrowMoneyByTokenAndUserIdAndRoomId(token, userId, roomId);
-        if(throwMoneyList.size()==0) {
+        ThrowMoney throwMoney = throwMoneyRepository.getThrowMoneyByTokenAndUserIdAndRoomId(token, userId, roomId);
+        if(throwMoney == null) {
             throw new CannotFindThrowMoneyException("해당 뿌리기를 찾을 수 없습니다.");
         }
-
-        ThrowMoney throwMoney = throwMoneyList.get(0);
 
         List<ReceiveInfo> receiveInfoList = throwMoneyRepository.findReceiveInfoByToken(token);
 

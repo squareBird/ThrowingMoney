@@ -35,13 +35,14 @@ public class DatabaseThrowMoneyRepository implements ThrowMoneyRepository {
     }
 
     @Override
-    public List<ThrowMoney> findThrowMoneyByTokenAndRoomId(String token, String roomId) {
+    public ThrowMoney getThrowMoneyByTokenAndRoomId(String token, String roomId) {
 
-        List<ThrowMoney> result = em
+        ThrowMoney result = em
                 .createQuery("select t from ThrowMoney t where t.token = :token and t.roomId = :roomId", ThrowMoney.class)
                 .setParameter("token", token)
                 .setParameter("roomId", roomId)
-                .getResultList();
+                .getResultList()
+                .get(0);
 
         return result;
 
@@ -60,14 +61,15 @@ public class DatabaseThrowMoneyRepository implements ThrowMoneyRepository {
     }
 
     @Override
-    public List<ThrowMoney> findThrowMoneyByTokenAndUserIdAndRoomId(String token, Long userId, String roomId) {
+    public ThrowMoney getThrowMoneyByTokenAndUserIdAndRoomId(String token, Long userId, String roomId) {
 
-        List<ThrowMoney> result = em
+        ThrowMoney result = em
                 .createQuery("select t from ThrowMoney t where t.token = :token and t.userId = :userId and t.roomId = :roomId", ThrowMoney.class)
                 .setParameter("token", token)
                 .setParameter("roomId", roomId)
                 .setParameter("userId", userId)
-                .getResultList();
+                .getResultList()
+                .get(0);
 
         return result;
 
